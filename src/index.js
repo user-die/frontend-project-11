@@ -5,11 +5,10 @@ import i18next from "./i18n.js";
 import axios from "axios";
 
 const schema = yup.object().shape({
-  website: yup.string().url("Ссылка должна быть валидным URL"),
+  website: yup.string().url("Ссылка должна быть валидным URL").required(),
 });
 
 const form = document.querySelector("form");
-const input = document.querySelector("input");
 const p = document.querySelector(".feedback");
 
 document.querySelector("button").textContent = i18next.t("button");
@@ -18,6 +17,56 @@ document.querySelector(".lead").textContent = i18next.t("p1");
 document.querySelector("label").textContent = i18next.t("input");
 document.querySelector(".text-muted").textContent = i18next.t("example");
 
+const posts = document.createElement("h2");
+posts.textContent = i18next.t("posts");
+posts.classList = "card-title h4";
+const fids = document.createElement("h2");
+fids.textContent = i18next.t("fids");
+fids.classList = "card-title h4";
+
+const ul = document.createElement("ul");
+const h2 = document.createElement("h2");
+document.querySelector(".card").append(ul);
+
+let parser = new DOMParser();
+
+const promise = (url) => {
+  axios
+    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+    .then((response) =>
+      parser.parseFromString(response.data.contents, "application/xml")
+    )
+
+    .then(function (data) {
+      document.querySelectorAll(
+        "ul"
+      )[1].innerHTML = `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${
+        data.querySelector("title").textContent
+      }</h3><p class='m-0 small text-black-50'>${
+        data.querySelector("description").textContent
+      }</p></li>`;
+
+      return Array.from(data.querySelectorAll("item"));
+    })
+
+    .then(
+      (data) =>
+        (ul.innerHTML = data.map(
+          (el) =>
+            `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a class="fw-bold" href= ${
+              el.querySelector("link").textContent
+            }>${
+              el.querySelector("title").textContent
+            }</a><button class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
+        ))
+    )
+
+    .then((p.classList = "text-success"))
+    .then((p.textContent = "RSS успешно загружен"))
+    .then(document.querySelectorAll(".card-body")[0].append(posts))
+    .then(document.querySelectorAll(".card-body")[1].append(fids));
+};
+
 form.addEventListener("submit", (e) => {
   form.focus();
   e.preventDefault();
@@ -25,44 +74,8 @@ form.addEventListener("submit", (e) => {
   const formData = new FormData(e.target);
   p.textContent = "";
   let data = formData.get("website");
-  console.log(data);
   schema.validate({ website: data }).catch((errors) => {
     p.textContent = i18next.t("valid");
+    promise(data);
   });
 });
-
-let url = "https://ru.hexlet.io/lessons.rss";
-let parser = new DOMParser();
-
-const ul = document.createElement("ul");
-document.querySelector(".posts").append(ul);
-
-const dataRss = async () => {
-  await axios
-    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
-    .then((response) => {
-      return response.data.contents;
-    });
-};
-
-const qwe = parser.parseFromString(dataRss(), "application/xml");
-
-console.log(qwe);
-
-const items = qwe.querySelectorAll("item");
-
-items.map((item) => ul.append(document.createElement("li")));
-
-/*
-const dataRss = async () => {
-  await axios
-    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
-    .then((response) => {
-      const qwe = parser.parseFromString(
-        response.data.contents,
-        "application/xml"
-      );
-      return qwe;
-    });
-};
-*/

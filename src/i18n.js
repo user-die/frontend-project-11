@@ -11,6 +11,8 @@ i18next.init({
         button: "Добавить",
         example: "Пример: https://ru.hexlet.io/lessons.rss",
         valid: "Ссылка должна быть валидным URL",
+        posts: "Посты",
+        fids: "Фиды",
       },
     },
     en: {
@@ -21,6 +23,8 @@ i18next.init({
         button: "Add",
         example: "Example: https://ru.hexlet.io/lessons.rss",
         valid: "The link must be a valid URL",
+        posts: "Posts",
+        fids: "Fids",
       },
     },
   },
