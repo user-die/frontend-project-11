@@ -2,6 +2,7 @@ import "./styles.scss";
 import "bootstrap";
 import * as yup from "yup";
 import i18next from "./i18n.js";
+import axios from "axios";
 
 const schema = yup.object().shape({
   website: yup.string().url("Ссылка должна быть валидным URL"),
@@ -29,3 +30,39 @@ form.addEventListener("submit", (e) => {
     p.textContent = i18next.t("valid");
   });
 });
+
+let url = "https://ru.hexlet.io/lessons.rss";
+let parser = new DOMParser();
+
+const ul = document.createElement("ul");
+document.querySelector(".posts").append(ul);
+
+const dataRss = async () => {
+  await axios
+    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+    .then((response) => {
+      return response.data.contents;
+    });
+};
+
+const qwe = parser.parseFromString(dataRss(), "application/xml");
+
+console.log(qwe);
+
+const items = qwe.querySelectorAll("item");
+
+items.map((item) => ul.append(document.createElement("li")));
+
+/*
+const dataRss = async () => {
+  await axios
+    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+    .then((response) => {
+      const qwe = parser.parseFromString(
+        response.data.contents,
+        "application/xml"
+      );
+      return qwe;
+    });
+};
+*/
