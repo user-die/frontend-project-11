@@ -4,6 +4,10 @@ import * as yup from "yup";
 import i18next from "./i18n.js";
 import axios from "axios";
 
+const state = {
+  isValid: true,
+};
+
 const schema = yup.object().shape({
   website: yup.string().url("Ссылка должна быть валидным URL").required(),
 });
@@ -46,6 +50,11 @@ const promise = (url) => {
         data.querySelector("description").textContent
       }</p></li>`;
 
+      p.classList = "text-success";
+      p.textContent = "RSS успешно загружен";
+      document.querySelectorAll(".card-body")[0].append(posts);
+      document.querySelectorAll(".card-body")[1].append(fids);
+
       return Array.from(data.querySelectorAll("item"));
     })
 
@@ -59,12 +68,7 @@ const promise = (url) => {
               el.querySelector("title").textContent
             }</a><button class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
         ))
-    )
-
-    .then((p.classList = "text-success"))
-    .then((p.textContent = "RSS успешно загружен"))
-    .then(document.querySelectorAll(".card-body")[0].append(posts))
-    .then(document.querySelectorAll(".card-body")[1].append(fids));
+    );
 };
 
 form.addEventListener("submit", (e) => {
@@ -76,6 +80,9 @@ form.addEventListener("submit", (e) => {
   let data = formData.get("website");
   schema.validate({ website: data }).catch((errors) => {
     p.textContent = i18next.t("valid");
-    promise(data);
+    state.isValid = false;
   });
+  if (state.isValid === true) {
+    promise(data);
+  }
 });
