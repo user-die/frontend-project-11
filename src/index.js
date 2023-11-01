@@ -4,9 +4,12 @@ import * as yup from "yup";
 import i18next from "./i18n.js";
 import axios from "axios";
 import { uniqueId } from "lodash";
+import { data } from "autoprefixer";
 
 const state = {
-  isValid: true,
+  url: "",
+  isValid: false,
+  isLoading: false,
   posts: [],
   feeds: {
     title: "",
@@ -17,10 +20,7 @@ const state = {
 };
 
 const schema = yup.object().shape({
-  website: yup
-    .string()
-    .required("notEmpty")
-    .url("Ссылка должна быть валидным URL"),
+  website: yup.string().url("Ссылка должна быть валидным URL"),
 });
 
 const form = document.querySelector("form");
@@ -40,6 +40,7 @@ fids.textContent = i18next.t("fids");
 fids.classList = "card-title h4";
 
 const ul = document.createElement("ul");
+ul.classList = "list-group border-0 rounded-0";
 document.querySelector(".card").append(ul);
 
 let parser = new DOMParser();
@@ -64,25 +65,26 @@ const promise = (url) => {
         "ul"
       )[1].innerHTML = `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${state.feeds.title.textContent}</h3><p class='m-0 small text-black-50'>${state.feeds.description.textContent}</p></li>`;
 
-      p.classList = "text-success";
+      p.classList = "feedback m-0 position-absolute small text-success";
       p.textContent = "RSS успешно загружен";
+
       document.querySelectorAll(".card-body")[0].append(posts);
       document.querySelectorAll(".card-body")[1].append(fids);
     })
 
     .then(() => {
-      ul.innerHTML = state.posts.map(
-        (el) =>
-          `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
-            el.id
-          }"
-              
-             class="fw-bold" href= ${
-               el.item.querySelector("link").textContent
-             }>${el.item.querySelector("title").textContent}</a><button id="${
-               el.id
-             }" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
-      );
+      ul.innerHTML = state.posts
+        .map(
+          (el) =>
+            `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
+              el.id
+            }" class="fw-bold" href= ${
+              el.item.querySelector("link").textContent
+            }>${el.item.querySelector("title").textContent}</a><button id="${
+              el.id
+            }" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#modal" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
+        )
+        .join("");
     })
 
     .then(function () {
@@ -122,19 +124,55 @@ const promise = (url) => {
     });
 };
 
+const checkUpdate = (url) => {
+  axios
+    .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+
+    .then((response) =>
+      parser.parseFromString(response.data.contents, "application/xml")
+    )
+    .then((data) => {
+      if (data.querySelectorAll("item").length !== state.url) {
+        Array.from(data.querySelectorAll("item")).map((el) =>
+          state.posts.push({ item: el, id: uniqueId() })
+        );
+      }
+    });
+  setTimeout(checkUpdate, 5000, state.url);
+};
+
+const render = (state) => {
+  if (state.isValid === true) {
+    promise(state.url);
+  }
+};
+
 form.addEventListener("submit", (e) => {
   form.focus();
   e.preventDefault();
   const formData = new FormData(e.target);
   p.textContent = "";
   let data = formData.get("website");
-  schema.validate({ website: data }).catch((errors) => {
-    p.textContent = i18next.t("valid");
-    state.isValid = false;
-  });
+  state.url = data;
+
+  schema
+    .validate({ website: data })
+    .catch((errors) => {
+      p.textContent = i18next.t("valid");
+      state.isValid = false;
+      return errors;
+    })
+    .then((data) => {
+      if (data.website !== undefined) {
+        state.isValid = true;
+      }
+    });
 
   if (state.isValid === true) {
-    promise(data);
+    state.url = data;
+    state.isLoading = true;
   }
-  console.log(state.posts);
+
+  promise(data);
+  //checkUpdate(data);
 });
