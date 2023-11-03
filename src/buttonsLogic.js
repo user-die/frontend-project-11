@@ -1,3 +1,10 @@
+const showModal = (selector) => {
+  document.querySelector(selector).addEventListener('click', () => {
+    document.querySelector('.modal').style = 'display: none';
+    document.querySelector('.modal').classList = 'modal fade';
+  });
+}
+
 const buttonsLogic = (modalText, posts) => {
     const postButtons = document.querySelectorAll('.btn-outline-primary');
   
@@ -16,16 +23,9 @@ const buttonsLogic = (modalText, posts) => {
     document.querySelectorAll('.fw-bold').forEach((i) => i.addEventListener('click', () => {
       document.getElementById(`${i.id}`).classList = 'fw-normal link-secondary';
     }));
-  
-    document.querySelector('.btn-secondary').addEventListener('click', () => {
-      document.querySelector('.modal').style = 'display: none';
-      document.querySelector('.modal').classList = 'modal fade';
-    });
-  
-    document.querySelector('.close').addEventListener('click', () => {
-      document.querySelector('.modal').style = 'display: none';
-      document.querySelector('.modal').classList = 'modal fade';
-    });
+
+    showModal('.btn-secondary');
+    showModal('.modal');
 };
 
 export default buttonsLogic;
