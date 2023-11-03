@@ -2,7 +2,7 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import i18next from './i18n.js';
-import promise from './axios.js';
+import promise from './getRss.js';
 import checkUpdate from './checkUpdates.js';
 
 const state = {
@@ -39,8 +39,6 @@ fids.classList    = 'card-title h4';
 const ul          = document.createElement('ul');
 ul.classList      = 'list-group border-0 rounded-0';
 document.querySelector('.card').append(ul);
-
-const parser = new DOMParser();
 
 const render = () => {
   p.classList = 'feedback m-0 position-absolute small text-success';

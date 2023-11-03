@@ -1,15 +1,10 @@
-import axios from 'axios';
 import { uniqueId } from 'lodash';
 import buttonsLogic from './buttonsLogic';
 import { state, renderPost } from '.';
-
-const parser = new DOMParser();
+import axiosGet from './axios';
 
 const checkUpdate = (url) => {
-    axios
-      .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
-  
-      .then((response) => parser.parseFromString(response.data.contents, 'application/xml'))
+  axiosGet(url)
       .then((data) => {
         const map = () => state.posts.map((el) => el.item.querySelector('title').textContent);
         
