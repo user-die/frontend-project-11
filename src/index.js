@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import i18next from './i18n.js';
 import promise from './getRss.js';
 import checkUpdate from './checkUpdates.js';
+import { changeLanguage } from 'i18next';
 
 const state = {
   lng: 'ru',
@@ -24,17 +25,9 @@ const schema = yup.object().shape({
 const form = document.querySelector('form');
 const p = document.querySelector('.feedback');
 
-document.querySelector('.h-100').textContent = i18next.t('button');
-document.querySelector('h1').textContent     = i18next.t('h1');
-document.querySelector('.lead').textContent  = i18next.t('p1');
-document.querySelector('label').textContent  = i18next.t('input');
-document.querySelector('.text-muted').textContent = i18next.t('example');
-
 const posts       = document.createElement('h2');
-posts.textContent = i18next.t('posts');
 posts.classList   = 'card-title h4';
 const fids        = document.createElement('h2');
-fids.textContent  = i18next.t('fids');
 fids.classList    = 'card-title h4';
 const ul          = document.createElement('ul');
 ul.classList      = 'list-group border-0 rounded-0';
@@ -48,13 +41,31 @@ const render = () => {
   document.querySelectorAll('.card-body')[1].append(fids);
 }
 
+const changeLang = () => {
+  if (state.lng === 'en') {
+    changeLanguage('en');
+  }
+
+  if (state.lng === 'ru') {
+    changeLanguage('ru');
+  }
+
+  document.querySelector('.h-100').textContent = i18next.t('button');
+  document.querySelector('h1').textContent     = i18next.t('h1');
+  document.querySelector('.lead').textContent  = i18next.t('p1');
+  document.querySelector('label').textContent  = i18next.t('input');
+  document.querySelector('.text-muted').textContent = i18next.t('example');
+  posts.textContent = i18next.t('posts');
+  fids.textContent  = i18next.t('fids');
+}
+
 const renderPost = (state) => {
-  document.querySelectorAll('ul')[1].innerHTML = state.feeds
+  document.querySelectorAll('ul')[2].innerHTML = state.feeds
     .map(
             (el) => `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${el.title}</h3><p class='m-0 small text-black-50'>${el.description}</p></li>`,
           ).join('');
   
-  document.querySelectorAll('ul')[0].innerHTML = state.posts
+  document.querySelectorAll('ul')[1].innerHTML = state.posts
     .map(
             (el) => `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
               el.id
@@ -111,5 +122,17 @@ form.addEventListener('submit', (e) => {
       });
   }
 });
+
+changeLang();
+
+document.querySelector('#ru').addEventListener('click', () => {
+  state.lng = 'ru';
+  changeLang();
+})
+
+document.querySelector('#en').addEventListener('click', () => {
+  state.lng = 'en';
+  changeLang();
+})
 
 export {state, renderPost};
