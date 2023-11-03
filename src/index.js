@@ -4,19 +4,16 @@ import * as yup from "yup";
 import i18next from "./i18n.js";
 import axios from "axios";
 import { uniqueId } from "lodash";
-import { differenceBy } from "lodash";
 
 const state = {
+  lng: "ru",
   url: "",
   isValid: false,
   isLoaded: false,
   isCheck: false,
   posts: [],
   newPosts: [],
-  feeds: {
-    title: "",
-    description: "",
-  },
+  feeds: [],
   modalTitle: "",
   modalText: "",
 };
@@ -58,14 +55,10 @@ const promise = (url) => {
         state.posts.push({ item: el, id: uniqueId() })
       );
 
-      state.feeds.title = data.querySelector("title");
-      state.feeds.description = data.querySelector("description");
-    })
-
-    .then(function () {
-      document.querySelectorAll(
-        "ul"
-      )[1].innerHTML = `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${state.feeds.title.textContent}</h3><p class='m-0 small text-black-50'>${state.feeds.description.textContent}</p></li>`;
+      state.feeds.push({
+        title: data.querySelector("title").textContent,
+        description: data.querySelector("description").textContent,
+      });
 
       p.classList = "feedback m-0 position-absolute small text-success";
       p.textContent = "RSS успешно загружен";
@@ -75,6 +68,13 @@ const promise = (url) => {
     })
 
     .then(() => {
+      document.querySelectorAll("ul")[1].innerHTML = state.feeds
+        .map(
+          (el) =>
+            `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${el.title}</h3><p class='m-0 small text-black-50'>${el.description}</p></li>`
+        )
+        .join("");
+
       ul.innerHTML = state.posts
         .map(
           (el) =>
@@ -129,11 +129,6 @@ const buttonsLogic = () => {
   });
 };
 
-const filt = (text) =>
-  state.posts.filter(
-    (el) => el.item.querySelector("title").textContent === text
-  );
-
 const map = () => {
   return state.posts.map((el) => el.item.querySelector("title").textContent);
 };
@@ -155,22 +150,25 @@ const checkUpdate = (url) => {
           state.posts.push({ item: el, id: uniqueId() });
         }
       });
-      console.log(state.posts);
+
+      if (
+        Array.from(data.querySelectorAll("item")).length !== state.posts.length
+      ) {
+        ul.innerHTML = state.posts
+          .map(
+            (el) =>
+              `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
+                el.id
+              }" class="fw-bold" href= ${
+                el.item.querySelector("link").textContent
+              }>${el.item.querySelector("title").textContent}</a><button id="${
+                el.id
+              }" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#modal" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
+          )
+          .join("");
+      }
     })
-    .then(() => {
-      ul.innerHTML = state.posts
-        .map(
-          (el) =>
-            `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
-              el.id
-            }" class="fw-bold" href= ${
-              el.item.querySelector("link").textContent
-            }>${el.item.querySelector("title").textContent}</a><button id="${
-              el.id
-            }" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#modal" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`
-        )
-        .join("");
-    })
+
     .then(() => {
       buttonsLogic();
     });
@@ -191,8 +189,6 @@ form.addEventListener("submit", (e) => {
   }
 
   if (data != state.url) {
-    state.feeds = [];
-    state.posts = [];
     schema
       .validate({ website: data })
       .catch((errors) => {
