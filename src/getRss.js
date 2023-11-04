@@ -1,9 +1,9 @@
 import { uniqueId } from 'lodash';
 import buttonsLogic from './buttonsLogic';
-import {renderPost} from '.';
-import axiosGet from './axios';
+import {renderPost} from './index.js';
+import axiosGet from './axiosGet';
 
-const promise = (url, state) => {
+const getRss = (url, state) => {
   axiosGet(url)
     .then((data) => {
       Array.from(data.querySelectorAll('item')).map((el) => state.posts.push({ item: el, id: uniqueId() }));
@@ -19,7 +19,7 @@ const promise = (url, state) => {
     })
     .then(() => {
       buttonsLogic(state.modalText, state.posts);
-    })
+    });
 };
 
-export default promise;
+export default getRss;

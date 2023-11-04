@@ -2,7 +2,7 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import i18next from './i18n.js';
-import promise from './getRss.js';
+import getRss from './getRss.js';
 import checkUpdate from './checkUpdates.js';
 import { changeLanguage } from 'i18next';
 
@@ -62,19 +62,19 @@ const changeLang = () => {
 const renderPost = (state) => {
   document.querySelectorAll('ul')[2].innerHTML = state.feeds
     .map(
-            (el) => `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${el.title}</h3><p class='m-0 small text-black-50'>${el.description}</p></li>`,
-          ).join('');
-  
+      (el) => `<li class='list-group-item border-0 border-end-0'><h3 class='h6 m-0'>${el.title}</h3><p class='m-0 small text-black-50'>${el.description}</p></li>`,
+    ).join('');
+
   document.querySelectorAll('ul')[1].innerHTML = state.posts
     .map(
-            (el) => `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
-              el.id
-            }" class="fw-bold" href= ${
-              el.item.querySelector('link').textContent
-            }>${el.item.querySelector('title').textContent}</a><button id="${
-              el.id
-            }" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#modal" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`,
-          ).join('');
+      (el) => `<li class='list-group-item d-flex justify-content-between align-items-start border-0 border-end-0'><a id="${
+        el.id
+      }" class="fw-bold" href= ${
+        el.item.querySelector('link').textContent
+      }>${el.item.querySelector('title').textContent}</a><button id="${
+        el.id
+      }" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#modal" class="btn btn-outline-primary btn-sm">Просмотр</button></li>`,
+    ).join('');
 }
 
 form.addEventListener('submit', (e) => {
@@ -109,7 +109,7 @@ form.addEventListener('submit', (e) => {
       })
       .then(() => {
         if (state.isValid === true) {
-          promise(state.url, state);
+          getRss(state.url, state);
           render(); 
           state.isLoaded = true;
         }
@@ -128,11 +128,11 @@ changeLang();
 document.querySelector('#ru').addEventListener('click', () => {
   state.lng = 'ru';
   changeLang();
-})
+});
 
 document.querySelector('#en').addEventListener('click', () => {
   state.lng = 'en';
   changeLang();
-})
+});
 
 export {state, renderPost};
