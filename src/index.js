@@ -54,7 +54,7 @@ const changeLang = () => {
   document.querySelector('h1').textContent     = i18next.t('h1');
   document.querySelector('.lead').textContent  = i18next.t('p1');
   document.querySelector('label').textContent  = i18next.t('input');
-  document.querySelector('.text-muted').textContent = i18next.t('example');
+  document.querySelector('.text-secondary').textContent = i18next.t('example');
   posts.textContent = i18next.t('posts');
   fids.textContent  = i18next.t('fids');
 }
